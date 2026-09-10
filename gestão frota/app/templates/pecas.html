@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Cadastro de Peças e Controle de Estoque</h2>
+</div>
+
+<div class="card p-4 mb-4">
+    <h5 class="card-title text-primary mb-3">Cadastrar Nova Peça</h5>
+    <form method="POST" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">Nome da Peça</label>
+            <input type="text" name="nome" class="form-control" placeholder="Ex: Filtro de Óleo" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Fabricante</label>
+            <input type="text" name="fabricante" class="form-control" placeholder="Ex: Bosch">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Valor (R$)</label>
+            <input type="number" step="0.01" name="valor" class="form-control" placeholder="0.00" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Estoque Atual</label>
+            <input type="number" name="qtd_estoque" class="form-control" placeholder="0" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Estoque Mínimo</label>
+            <input type="number" name="estoque_minimo" class="form-control" value="5" required>
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-primary px-4">Salvar Peça</button>
+        </div>
+    </form>
+</div>
+
+<div class="card p-3">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Fabricante</th>
+                <th>Valor Unitário</th>
+                <th>Qtd Estoque</th>
+                <th>Mínimo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pecas %}
+            <tr>
+                <td>#{{ p.id_peca }}</td>
+                <td><strong>{{ p.nome }}</strong></td>
+                <td>{{ p.fabricante or '-' }}</td>
+                <td>R$ {{ "%.2f"|format(p.valor) }}</td>
+                <td>
+                    {% if p.qtd_estoque <= p.estoque_minimo %}
+                        <span class="badge bg-danger">{{ p.qtd_estoque }}</span>
+                    {% else %}
+                        <span class="badge bg-success">{{ p.qtd_estoque }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.estoque_minimo }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-3">Nenhuma peça cadastrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .card-custom {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background-color: #ffffff;
+    }
+
+    .table-custom thead {
+        background-color: #f1f5f9;
+    }
+
+    .table-custom th {
+        color: #1e293b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        padding: 0.85rem 1rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .table-custom td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+    }
+
+    .badge-danger-custom {
+        background-color: #fee2e2;
+        color: #991b1b;
+        font-weight: 600;
+        padding: 0.4em 0.8em;
+        border-radius: 50rem;
+    }
+
+    .badge-success-custom {
+        background-color: #dcfce7;
+        color: #166534;
+        font-weight: 600;
+        padding: 0.4em 0.8em;
+        border-radius: 50rem;
+    }
+
+    .btn-primary-custom {
+        background-color: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+        font-weight: 600;
+    }
+</style>
+
+<h2 class="mb-4">Painel de Relatórios</h2>
+
+<!-- Relatório 1: Histórico por Placa -->
+<div class="card-custom">
+    <div class="border-bottom pb-2 mb-3">
+        <h4 class="fw-bold text-primary">1. Histórico do Veículo</h4>
+    </div>
+    <form method="GET" action="/relatorios" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="placa" value="{{ placa_busca }}" class="form-control" placeholder="Buscar por placa (ex: ABC1D23)">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary-custom w-100">Consultar</button>
+        </div>
+    </form>
+
+    {% if placa_busca %}
+        {% if historico %}
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Veículo</th>
+                    <th>Tipo</th>
+                    <th>Mecânico</th>
+                    <th>Itens / Peças</th>
+                    <th>Custo Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in historico %}
+                <tr>
+                    <td>{{ m.data_manutencao.strftime('%d/%m/%Y') if m.data_manutencao else '-' }}</td>
+                    <td><strong>{{ m.veiculo.placa }}</strong> <br><small class="text-muted">{{ m.veiculo.modelo }}</small></td>
+                    <td>
+                        <span class="badge {% if m.tipo == 'Preventiva' %}badge-success-custom{% else %}badge-danger-custom{% endif %}">
+                            {{ m.tipo }}
+                        </span>
+                    </td>
+                    <td>{{ m.mecanico.nome }}</td>
+                    <td>
+                        {% for item in m.itens %}
+                            • {{ item.peca.nome }} ({{ item.quantidade }}x)<br>
+                        {% else %}
+                            <span class="text-muted">Apenas mão de obra</span>
+                        {% endfor %}
+                    </td>
+                    <td><strong>R$ {{ "%.2f"|format(m.custo_total) }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning">Nenhuma manutenção registrada para a placa informada.</div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- Relatório 2: Estoque Crítico -->
+<div class="card-custom">
+    <div class="border-bottom pb-2 mb-3">
+        <h4 class="fw-bold text-danger">2. Peças em Estoque Crítico</h4>
+    </div>
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>Nome da Peça</th>
+                <th>Fabricante</th>
+                <th>Estoque Atual</th>
+                <th>Estoque Mínimo</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in estoque_critico %}
+            <tr>
+                <td><strong>{{ p.nome }}</strong></td>
+                <td>{{ p.fabricante or 'N/A' }}</td>
+                <td><span class="text-danger fw-bold">{{ p.qtd_estoque }} un</span></td>
+                <td>{{ p.estoque_minimo }} un</td>
+                <td><span class="badge-danger-custom">Reposição Necessária</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-success py-3">
+                    <strong>✓ Todos os níveis de estoque estão regulares.</strong>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

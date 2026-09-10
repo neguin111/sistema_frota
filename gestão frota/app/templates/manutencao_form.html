@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .card-custom {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+    }
+
+    .btn-primary-custom {
+        background-color: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #1d4ed8;
+        color: #ffffff;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-custom">
+            <div class="border-bottom pb-2 mb-4">
+                <h4 class="fw-bold text-primary">Registrar Ordem de Manutenção</h4>
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Veículo</label>
+                    <select name="id_veiculo" class="form-select" required>
+                        <option value="">Selecione um veículo...</option>
+                        {% for v in veiculos %}
+                            <option value="{{ v.id_veiculo }}">{{ v.placa }} - {{ v.modelo }} ({{ v.quilometragem }} KM)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Mecânico Responsável</label>
+                        <select name="id_mecanico" class="form-select" required>
+                            <option value="">Selecione...</option>
+                            {% for m in mecanicos %}
+                                <option value="{{ m.id_mecanico }}">{{ m.nome }} ({{ m.especialidade }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Tipo de Serviço</label>
+                        <select name="tipo" class="form-select">
+                            <option value="Preventiva">Preventiva</option>
+                            <option value="Corretiva">Corretiva</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descrição das Atividades</label>
+                    <textarea name="descricao" class="form-control" rows="3" placeholder="Detalhe o serviço realizado..."></textarea>
+                </div>
+
+                <div class="p-3 bg-light rounded border mb-4">
+                    <h6 class="fw-bold mb-3">Peça Utilizada (Baixa Automática de Estoque)</h6>
+                    <div class="row g-2">
+                        <div class="col-md-8">
+                            <select name="id_peca" class="form-select">
+                                <option value="">-- Nenhuma peça utilizada --</option>
+                                {% for p in pecas %}
+                                    <option value="{{ p.id_peca }}">{{ p.nome }} (Estoque: {{ p.qtd_estoque }} un) - R$ {{ "%.2f"|format(p.valor) }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="number" name="quantidade_peca" class="form-control" placeholder="Qtd" min="1" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-2">Registrar Manutenção</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
